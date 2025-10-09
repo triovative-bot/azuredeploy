@@ -13,7 +13,7 @@ provider "azurerm" {
 terraform {
   backend "azurerm" {
     resource_group_name   = "tfstate-rg"
-    storage_account_name  = "tfstatestorage1"
+    storage_account_name  = "tfstorage1"
     container_name        = "tfstate"
     key                   = "vm.terraform.tfstate"
   }
