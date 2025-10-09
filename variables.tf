@@ -1,0 +1,29 @@
+variable "resource_group_name" {
+  description = "Name of the resource group"
+  type        = string
+  default     = "tf-rg"
+}
+
+variable "location" {
+  description = "Azure region to deploy resources"
+  type        = string
+  default     = "East US"
+}
+
+variable "vm_name" {
+  description = "Virtual Machine name"
+  type        = string
+  default     = "tf-vm"
+}
+
+variable "admin_username" {
+  description = "Admin username for VM"
+  type        = string
+  default     = "azureuser"
+}
+
+variable "admin_password" {
+  description = "Admin password for VM"
+  type        = string
+  sensitive   = true
+}
