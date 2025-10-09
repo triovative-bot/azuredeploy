@@ -1,18 +1,18 @@
-# Create Resource Group
+# Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location
 }
 
-# Create Virtual Network
+# Virtual Network
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.vm_name}-vnet"
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-# Create Subnet
+# Subnet
 resource "azurerm_subnet" "subnet" {
   name                 = "${var.vm_name}-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -20,18 +20,18 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-# Create Public IP
+# Public IP
 resource "azurerm_public_ip" "pip" {
   name                = "${var.vm_name}-pip"
-  location            = azurerm_resource_group.rg.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
 }
 
-# Create Network Interface
+# Network Interface
 resource "azurerm_network_interface" "nic" {
   name                = "${var.vm_name}-nic"
-  location            = azurerm_resource_group.rg.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
@@ -42,35 +42,46 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
-# Create Virtual Machine with Managed Identity
-resource "azurerm_windows_virtual_machine" "vm" {
+# User-Assigned Managed Identity
+resource "azurerm_user_assigned_identity" "uami" {
+  name                = "${var.vm_name}-uami"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+}
+
+# Virtual Machine
+resource "azurerm_linux_virtual_machine" "vm" {
   name                  = var.vm_name
   resource_group_name   = azurerm_resource_group.rg.name
-  location              = azurerm_resource_group.rg.location
-  size                  = "Standard_B2s"
+  location              = var.location
+  size                  = "Standard_B1s"
   admin_username        = var.admin_username
-  admin_password        = var.admin_password
   network_interface_ids = [azurerm_network_interface.nic.id]
 
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = file(var.ssh_public_key_path)
+  }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.uami.id]
+  }
+
   os_disk {
+    name                 = "${var.vm_name}-osdisk"
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
 
   source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2019-Datacenter"
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
+}
 
-  # Enable system-assigned managed identity
-  identity {
-    type = "SystemAssigned"
-  }
-
-  tags = {
-    Environment = "Development"
-    ManagedBy   = "Terraform"
-  }
+output "vm_public_ip" {
+  value = azurerm_public_ip.pip.ip_address
 }
