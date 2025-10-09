@@ -42,6 +42,24 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
+# ==========================
+# Generate SSH Key Pair
+# ==========================
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+# Optionally output private key locally
+output "private_key_pem" {
+  value     = tls_private_key.ssh_key.private_key_pem
+  sensitive = true
+}
+
+output "public_key_openssh" {
+  value = tls_private_key.ssh_key.public_key_openssh
+}
+
 # User-Assigned Managed Identity
 resource "azurerm_user_assigned_identity" "uami" {
   name                = "${var.vm_name}-uami"
@@ -59,8 +77,8 @@ resource "azurerm_linux_virtual_machine" "vm" {
   network_interface_ids = [azurerm_network_interface.nic.id]
 
   admin_ssh_key {
-    username   = var.admin_username
-    public_key = file(var.ssh_public_key_path)
+    username   = "azureuser"
+    public_key = tls_private_key.ssh_key.public_key_openssh
   }
 
   identity {
