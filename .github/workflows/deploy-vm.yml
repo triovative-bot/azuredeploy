@@ -1,0 +1,31 @@
+name: Deploy Azure VM with Terraform
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Init Terraform
+        run: terraform init
+
+      - name: Plan Terraform
+        run: terraform plan -out=tfplan
+
+      - name: Apply Terraform
+        run: terraform apply -auto-approve tfplan
