@@ -44,23 +44,6 @@ resource "azurerm_storage_container" "state" {
   container_access_type = "private"
 }
 
-output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
-}
-
-output "storage_account_name" {
-  value = azurerm_storage_account.tfstate.name
-}
-
-output "container_name" {
-  value = azurerm_storage_container.state.name
-}
-
-output "primary_access_key" {
-  value     = azurerm_storage_account.tfstate.primary_access_key
-  sensitive = true
-}
-
 # Public IP
 resource "azurerm_public_ip" "pip" {
   name                = "${var.vm_name}-pip"
