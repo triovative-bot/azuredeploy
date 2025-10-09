@@ -1,10 +1,10 @@
-name: Deploy Azure VM via Terraform
+name: Destroy Azure VM via Terraform
 
 on: workflow_dispatch
  
 jobs:
   terraform:
-    name: Terraform Apply
+    name: Terraform Destroy
     runs-on: ubuntu-latest
 
     env:
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+      - name: Destroy Setup
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.0
