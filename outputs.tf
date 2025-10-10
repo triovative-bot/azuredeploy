@@ -33,12 +33,3 @@ output "vm_id" {
   value       = azurerm_linux_virtual_machine.vm.id
 }
 
-#Storage Account
-output "storage_account_name" {
-  value = azurerm_storage_account.tfstate.name
-}
-
-output "container_name" {
-  value = azurerm_storage_container.state.name
-}
-
