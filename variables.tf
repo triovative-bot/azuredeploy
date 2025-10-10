@@ -22,15 +22,3 @@ variable "admin_username" {
   default     = "azureuser"
 }
 
-# Storage Account
-variable "storage_account_name" {
-  description = "Unique name for the Azure Storage Account (must be globally unique)"
-  type        = string
-  default     = "tfstorage1"
-}
-
-variable "container_name" {
-  description = "Blob container name for Terraform state"
-  type        = string
-  default     = "tfstate"
-}
